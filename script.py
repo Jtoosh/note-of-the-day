@@ -1,16 +1,18 @@
 import os
 import random
 import re
+import sys
+
 import nltk
 
 # Make sure you have the Punkt tokenizer
 # Run this once before first use:
-# >>> import nltk
-# >>> nltk.download('punkt')
 
-NOTES_DIR = "./notes"  # path to your .md files
+# nltk.download('punkt_tab')
+
+NOTES_DIR = ".."  # path to your .md files
 MIN_LEN = 60           # minimum snippet length (chars)
-MAX_LEN = 240          # maximum snippet length (chars)
+MAX_LEN = 480          # maximum snippet length (chars)
 
 
 def get_markdown_files(root):
@@ -30,7 +32,7 @@ def read_file_clean(path):
     text = re.sub(r"```.*?```", "", text, flags=re.S)
 
     # Remove inline code `...`
-    text = re.sub(r"`.*?`", "", text)
+    # text = re.sub(r"`.*?`", "", text)
 
     # Remove headers (# ...)
     text = re.sub(r"^#+.*$", "", text, flags=re.M)
@@ -57,7 +59,7 @@ def filter_sentences(sentences):
     return good
 
 
-def pick_snippet():
+def generate_corpus():
     all_sentences = []
     for path in get_markdown_files(NOTES_DIR):
         text = read_file_clean(path)
@@ -67,11 +69,16 @@ def pick_snippet():
     if not all_sentences:
         return "⚠️ No suitable snippets found. Try adjusting filters."
 
-    return random.choice(all_sentences)
+    return all_sentences
+
+def pick_snippet(text_corpus):
+    return random.choice(text_corpus)
 
 
 if __name__ == "__main__":
-    snippet = pick_snippet()
+    if sys.argv[1] == "generate":
+        corpus = generate_corpus()
+    snippet = pick_snippet(corpus)
     print("─" * 40)
     print("💡 Snippet of the Day")
     print("─" * 40)
