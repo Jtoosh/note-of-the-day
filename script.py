@@ -11,7 +11,8 @@ import nltk
 # nltk.download('punkt_tab')
 
 NOTES_DIR = ".."  # path to your .md files
-MIN_LEN = 60           # minimum snippet length (chars)
+OUT_FILE = "corpus.txt"
+MIN_LEN = 60          # minimum snippet length (chars)
 MAX_LEN = 480          # maximum snippet length (chars)
 
 
@@ -35,7 +36,10 @@ def read_file_clean(path):
     # text = re.sub(r"`.*?`", "", text)
 
     # Remove headers (# ...)
-    text = re.sub(r"^#+.*$", "", text, flags=re.M)
+    text: str = re.sub(r"^#+.*$", "", text, flags=re.M)
+
+    # Remove blank newlines
+    text = re.sub(r"^\n","", text, flags=re.M)
 
     # Remove list markers (-, *, + at start of line)
     text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.M)
@@ -64,21 +68,28 @@ def generate_corpus():
     for path in get_markdown_files(NOTES_DIR):
         text = read_file_clean(path)
         sentences = extract_sentences(text)
-        all_sentences.extend(filter_sentences(sentences))
+        correct_len_sentences = filter_sentences(sentences)
+        all_sentences.extend(correct_len_sentences)
 
     if not all_sentences:
         return "⚠️ No suitable snippets found. Try adjusting filters."
 
+    with open(OUT_FILE, "w", encoding="utf-8") as f:
+        f.writelines(all_sentences)
     return all_sentences
 
-def pick_snippet(text_corpus):
+def pick_snippet():
+    with open(OUT_FILE, "r", encoding="utf-8") as f:
+        text_corpus = f.readlines()
+
     return random.choice(text_corpus)
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "generate":
-        corpus = generate_corpus()
-    snippet = pick_snippet(corpus)
+    if len(sys.argv) == 2:
+        if sys.argv[1] == "generate":
+            corpus = generate_corpus()
+    snippet = pick_snippet()
     print("─" * 40)
     print("💡 Snippet of the Day")
     print("─" * 40)
