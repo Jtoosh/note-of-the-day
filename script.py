@@ -86,9 +86,13 @@ def pick_snippet():
 
 
 if __name__ == "__main__":
+
     if len(sys.argv) == 2:
-        if sys.argv[1] == "generate":
+        if sys.argv[1] == "-generate":
             corpus = generate_corpus()
+        else:
+            print("usage: <python script.py -generate> to generate corpus\n or: <python script.py> to pick a snippet ")
+            exit(0)
     snippet = pick_snippet()
     print("─" * 40)
     print("💡 Snippet of the Day")
