@@ -2,8 +2,11 @@ import os
 import random
 import re
 import sys
+import json
 
 import nltk
+
+from snippet import Snippet
 
 # Make sure you have the Punkt tokenizer
 # Run this once before first use:
@@ -11,7 +14,7 @@ import nltk
 # nltk.download('punkt_tab')
 
 NOTES_DIR = ".."  # path to your .md files
-OUT_FILE = "corpus.txt"
+OUT_FILE = "snippets.json"
 MIN_LEN = 60          # minimum snippet length (chars)
 MAX_LEN = 480          # maximum snippet length (chars)
 
@@ -62,27 +65,35 @@ def filter_sentences(sentences):
                 good.append(s)
     return good
 
+def build_snippet_objects(text_list, file):
+    snippets = []
+    for text in text_list:
+        snippet = Snippet(text, None, file)
+        snippets.append(snippet)
+    return snippets
 
 def generate_corpus():
-    all_sentences = []
+    all_snippets = []
     for path in get_markdown_files(NOTES_DIR):
         text = read_file_clean(path)
+        filename = path.split("/")[-1]
         sentences = extract_sentences(text)
         correct_len_sentences = filter_sentences(sentences)
-        all_sentences.extend(correct_len_sentences)
+        built_snippets = build_snippet_objects(correct_len_sentences, filename)
+        all_snippets.extend(correct_len_sentences)
 
-    if not all_sentences:
+    if not all_snippets:
         return "⚠️ No suitable snippets found. Try adjusting filters."
 
     with open(OUT_FILE, "w", encoding="utf-8") as f:
-        f.writelines(all_sentences)
-    return all_sentences
+        json.dump(all_snippets, f, ensure_ascii=False, indent=2)
+    return all_snippets
 
 def pick_snippet():
     with open(OUT_FILE, "r", encoding="utf-8") as f:
-        text_corpus = f.readlines()
+        snippet_corpus = json.load(f)
 
-    return random.choice(text_corpus)
+    return random.choice(snippet_corpus)
 
 
 if __name__ == "__main__":
@@ -95,7 +106,7 @@ if __name__ == "__main__":
             exit(0)
     snippet = pick_snippet()
     print("─" * 40)
-    print("💡 Snippet of the Day")
+    print("💡 Snippet of the Day: " + snippet.file)
     print("─" * 40)
     print(snippet)
     print("─" * 40)
