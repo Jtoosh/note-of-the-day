@@ -6,7 +6,7 @@ import json
 
 import nltk
 
-from snippet import Snippet
+from snippet import Snippet, SnippetEncoder
 
 # Make sure you have the Punkt tokenizer
 # Run this once before first use:
@@ -80,19 +80,19 @@ def generate_corpus():
         sentences = extract_sentences(text)
         correct_len_sentences = filter_sentences(sentences)
         built_snippets = build_snippet_objects(correct_len_sentences, filename)
-        all_snippets.extend(correct_len_sentences)
+        all_snippets.extend(built_snippets)
 
     if not all_snippets:
         return "⚠️ No suitable snippets found. Try adjusting filters."
 
     with open(OUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(all_snippets, f, ensure_ascii=False, indent=2)
+        json.dump( all_snippets, f, cls=SnippetEncoder, indent=4)
     return all_snippets
 
 def pick_snippet():
     with open(OUT_FILE, "r", encoding="utf-8") as f:
-        snippet_corpus = json.load(f)
-
+        json_corpus = json.load(f, object_hook=Snippet.custom_decoder)
+        snippet_corpus = json.loads(json_corpus)
     return random.choice(snippet_corpus)
 
 
@@ -108,5 +108,5 @@ if __name__ == "__main__":
     print("─" * 40)
     print("💡 Snippet of the Day: " + snippet.file)
     print("─" * 40)
-    print(snippet)
+    print(snippet.text)
     print("─" * 40)
