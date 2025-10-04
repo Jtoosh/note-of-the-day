@@ -10,9 +10,17 @@ class Snippet:
 
     def custom_decoder(dct):
         if '__type__' in dct and dct['__type__'] == 'Snippet':
-            return Snippet(dct['text'], dct['header'], dct['file'], dct['last_seen'] )
+            return Snippet(dct['text'], dct['header'], dct['file'] )
         return dct
 
 class SnippetEncoder(json.JSONEncoder):
     def default(self, obj):
-        return obj.__dict__
+        if isinstance(obj, Snippet):
+            return{
+                '__type__': 'Snippet',
+                'text': obj.text,
+                'header': obj.header,
+                'file': obj.file,
+                'last_seen': obj.last_seen
+            }
+        return super().default(obj)

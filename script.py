@@ -15,7 +15,7 @@ from snippet import Snippet, SnippetEncoder
 
 NOTES_DIR = ".."  # path to your .md files
 OUT_FILE = "snippets.json"
-MIN_LEN = 60          # minimum snippet length (chars)
+MIN_LEN = 240          # minimum snippet length (chars)
 MAX_LEN = 480          # maximum snippet length (chars)
 
 
@@ -91,8 +91,7 @@ def generate_corpus():
 
 def pick_snippet():
     with open(OUT_FILE, "r", encoding="utf-8") as f:
-        json_corpus = json.load(f, object_hook=Snippet.custom_decoder)
-        snippet_corpus = json.loads(json_corpus)
+        snippet_corpus = json.load(f, object_hook=Snippet.custom_decoder)
     return random.choice(snippet_corpus)
 
 
