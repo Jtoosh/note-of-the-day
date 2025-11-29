@@ -13,10 +13,10 @@ from snippet import Snippet, SnippetEncoder
 
 # nltk.download('punkt_tab')
 
-NOTES_DIR = ".."  # path to your .md files
+NOTES_DIR = "../notesrepo"  # path to your .md files
 OUT_FILE = "snippets.json"
-MIN_LEN = 240          # minimum snippet length (chars)
-MAX_LEN = 480          # maximum snippet length (chars)
+MIN_LEN = 640       # minimum snippet length (chars)
+MAX_LEN = 960        # maximum snippet length (chars)
 
 
 def get_markdown_files(root):
@@ -35,7 +35,7 @@ def read_file_clean(path):
     # Remove fenced code blocks ``` ... ```
     text = re.sub(r"```.*?```", "", text, flags=re.S)
 
-    # Remove inline code `...`
+    # Remove inline code `...` - currently disabled
     # text = re.sub(r"`.*?`", "", text)
 
     # Remove headers (# ...)
@@ -75,10 +75,14 @@ def build_snippet_objects(text_list, file):
 def generate_corpus():
     all_snippets = []
     for path in get_markdown_files(NOTES_DIR):
+        # Scrap out unwanted text
         text = read_file_clean(path)
         filename = path.split("/")[-1]
+        # Tokenize sentences
         sentences = extract_sentences(text)
+        # Filter sentences
         correct_len_sentences = filter_sentences(sentences)
+        # Build the snippet objects
         built_snippets = build_snippet_objects(correct_len_sentences, filename)
         all_snippets.extend(built_snippets)
 
