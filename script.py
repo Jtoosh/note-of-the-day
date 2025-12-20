@@ -5,6 +5,7 @@ import sys
 import json
 
 import nltk
+import marko
 
 from snippet import Snippet, SnippetEncoder
 
@@ -39,7 +40,7 @@ def read_file_clean(path):
     # text = re.sub(r"`.*?`", "", text)
 
     # Remove headers (# ...)
-    text: str = re.sub(r"^#+.*$", "", text, flags=re.M)
+    # text: str = re.sub(r"^#+.*$", "", text, flags=re.M)
 
     # Remove blank newlines
     text = re.sub(r"^\n","", text, flags=re.M)
@@ -52,6 +53,7 @@ def read_file_clean(path):
 
 def extract_sentences(text):
     """Split text into sentences with NLTK."""
+    markdown = marko.parse(text)
     return nltk.sent_tokenize(text)
 
 

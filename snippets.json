@@ -19,12 +19,5 @@
         "header": null,
         "file": "cs224_computer_systems.md",
         "last_seen": null
-    },
-    {
-        "__type__": "Snippet",
-        "text": "Commands to remember:\nTo instantiate the virutal environment: `python3 -m venv .venv` in the root directory\nTo activate the virtual environment: `source .venv/bin/activate`\nTo deactivate the virtual environment: `deactivate`\nUse pip to install needed packages\nTo run the MyPy checks: `mypy --strict <filename>`\nTo run a pre-commit check: `pre-commit run --all-files`\nTo run the tests: `pytest`\nTo run a certain pytest: `pytest <testname>`\nTo run a certain test in a certain file: `pytest <filename>::<testname>`\nTo get a list of the known tests: `pytest --collect-only`\n*Test driven development* (TDD) is the process of first writing a test for a new behavior in the code, running the test to see it fail (for whatever reason including missing definitions), and then writing code to make the test pass.",
-        "header": null,
-        "file": "cs236_discrete_structures.md",
-        "last_seen": null
     }
 ]
