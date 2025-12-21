@@ -1,18 +1,13 @@
 import os
 import random
-import re
 import sys
 import json
+import pprint
 
-import nltk
 import marko
+from marko import block, inline
 
 from snippet import Snippet, SnippetEncoder
-
-# Make sure you have the Punkt tokenizer
-# Run this once before first use:
-
-# nltk.download('punkt_tab')
 
 NOTES_DIR = "../notesrepo"  # path to your .md files
 OUT_FILE = "snippets.json"
@@ -28,66 +23,68 @@ def get_markdown_files(root):
                 yield os.path.join(dirpath, file)
 
 
-def read_file_clean(path):
-    """Read Markdown file and strip out code blocks, headers, lists."""
-    with open(path, "r", encoding="utf-8") as f:
-        text = f.read()
+def parse_markdown (file_path):
+  with open(file_path, "r", encoding="utf-8") as f:
+    text = f.read()
 
-    # Remove fenced code blocks ``` ... ```
-    text = re.sub(r"```.*?```", "", text, flags=re.S)
+    document = marko.parse(text)
 
-    # Remove inline code `...` - currently disabled
-    # text = re.sub(r"`.*?`", "", text)
+    doc_snippets = []
+    heading_stack = []
 
-    # Remove headers (# ...)
-    # text: str = re.sub(r"^#+.*$", "", text, flags=re.M)
+    elements = document.children
 
-    # Remove blank newlines
-    text = re.sub(r"^\n","", text, flags=re.M)
+    for i, element in enumerate(elements):
+      if isinstance(element, block.Heading):
+        header_text = get_node_text(element)
+        level = element.level
 
-    # Remove list markers (-, *, + at start of line)
-    text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.M)
+        #This will truncate the heading stack to the contain only headings of the higher level
+        heading_stack = heading_stack[:level-1] + [header_text]
+        continue
+      if isinstance(element, (block.Paragraph, block.CodeBlock, block.FencedCode, block.List)):
 
-    return text
+        content_text = get_node_text(element)
 
+        # skip empty paragraphs
+        if not content_text.strip():
+          continue
 
-def extract_sentences(text):
-    """Split text into sentences with NLTK."""
-    markdown = marko.parse(text)
-    return nltk.sent_tokenize(text)
+        # get previous text for context
+        if i > 0:
+          prev_element = elements[i-1]
 
+          prev_text = get_node_text(prev_element)
 
-def filter_sentences(sentences):
-    """Keep sentences that fit length and formatting rules."""
-    good = []
-    for s in sentences:
-        s = s.strip()
-        if MIN_LEN <= len(s) <= MAX_LEN:
-            if s[0].isupper() and s[-1] in ".!?":
-                good.append(s)
-    return good
+        next_text = ""
+        if i < len(elements)-1:
+          next_element = elements[i+1]
+          next_text = get_node_text(next_element)
 
-def build_snippet_objects(text_list, file):
-    snippets = []
-    for text in text_list:
-        snippet = Snippet(text, None, file)
-        snippets.append(snippet)
-    return snippets
+        filename = file_path.split("/")[-1]
+        snippet = Snippet(content_text, heading_stack, filename, prev_text, next_text)
+        doc_snippets.append(snippet)
+    return doc_snippets
+
+def get_node_text(node):
+
+  if isinstance(node, inline.RawText):
+    return node.children
+  if isinstance(node, inline.CodeSpan):
+    return node.children
+  if hasattr(node, "children"):
+    if isinstance(node.children, str):
+      return node.children
+    return "".join(get_node_text(child) for child in node.children)
+  return ""
 
 def generate_corpus():
     all_snippets = []
     for path in get_markdown_files(NOTES_DIR):
         # Scrap out unwanted text
-        text = read_file_clean(path)
-        filename = path.split("/")[-1]
-        # Tokenize sentences
-        sentences = extract_sentences(text)
-        # Filter sentences
-        correct_len_sentences = filter_sentences(sentences)
-        # Build the snippet objects
-        built_snippets = build_snippet_objects(correct_len_sentences, filename)
-        all_snippets.extend(built_snippets)
 
+        file_snippets = parse_markdown(path)
+        all_snippets.extend(file_snippets)
     if not all_snippets:
         return "⚠️ No suitable snippets found. Try adjusting filters."
 
@@ -113,5 +110,8 @@ if __name__ == "__main__":
     print("─" * 40)
     print("💡 Snippet of the Day: " + snippet.file)
     print("─" * 40)
+    print(snippet.header)
+    # print(snippet.prev_text)
     print(snippet.text)
+    print(snippet.next_text)
     print("─" * 40)

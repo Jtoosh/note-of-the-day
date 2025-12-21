@@ -2,15 +2,16 @@ import json
 
 
 class Snippet:
-    def __init__(self, text, header, file):
+    def __init__(self, text, header, file, prev_text = None, next_text = None):
         self.text = text
         self.header = header
         self.file = file
-        self.last_seen = None
+        self.prev_text = prev_text
+        self.next_text = next_text
 
     def custom_decoder(dct):
         if '__type__' in dct and dct['__type__'] == 'Snippet':
-            return Snippet(dct['text'], dct['header'], dct['file'] )
+            return Snippet(dct['text'], dct['header'], dct['file'], dct['previous paragraph'], dct['next paragraph'] )
         return dct
 
 class SnippetEncoder(json.JSONEncoder):
@@ -21,6 +22,7 @@ class SnippetEncoder(json.JSONEncoder):
                 'text': obj.text,
                 'header': obj.header,
                 'file': obj.file,
-                'last_seen': obj.last_seen
+                'previous paragraph': obj.prev_text,
+                'next paragraph': obj.next_text,
             }
         return super().default(obj)
