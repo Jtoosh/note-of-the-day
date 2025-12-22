@@ -3,6 +3,7 @@ import random
 import sys
 import json
 import pprint
+from ftplib import print_line
 
 import marko
 from marko import block, inline
@@ -52,14 +53,23 @@ def parse_markdown (file_path):
 
         # get previous text for context
         if i > 0:
-          prev_element = elements[i-1]
-
+          j = i
+          while j > 0 and isinstance(elements[j-1], block.BlankLine):
+            j -= 1
+          prev_element = elements[j-1]
           prev_text = get_node_text(prev_element)
+          if isinstance(prev_element, block.Heading):
+            prev_text = ""
 
         next_text = ""
         if i < len(elements)-1:
-          next_element = elements[i+1]
+          k = i
+          while j < len(elements)-1 and isinstance(elements[k+1], block.BlankLine):
+            k += 1
+          next_element = elements[k+1]
           next_text = get_node_text(next_element)
+          if isinstance(next_element, block.Heading):
+            next_text = ""
 
         filename = file_path.split("/")[-1]
         snippet = Snippet(content_text, heading_stack, filename, prev_text, next_text)
@@ -97,6 +107,10 @@ def pick_snippet():
         snippet_corpus = json.load(f, object_hook=Snippet.custom_decoder)
     return random.choice(snippet_corpus)
 
+def print_header_stack(heading_stack):
+    print("-->".join(heading_stack))
+
+
 
 if __name__ == "__main__":
 
@@ -110,8 +124,8 @@ if __name__ == "__main__":
     print("─" * 40)
     print("💡 Snippet of the Day: " + snippet.file)
     print("─" * 40)
-    print(snippet.header)
-    # print(snippet.prev_text)
-    print(snippet.text)
-    print(snippet.next_text)
+    print_header_stack(snippet.header)
+    print(f"previous paragraph: {snippet.prev_text}")
+    print(f"snippet paragraph: {snippet.text}")
+    print(f"next paragraph:{snippet.next_text}")
     print("─" * 40)
