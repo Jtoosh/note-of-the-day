@@ -151,7 +151,8 @@ if __name__ == "__main__":
     print("💡 Snippet of the Day: " + snippet.file)
     print("─" * 80)
     print_header_stack(snippet.header)
-    print(f"{snippet.prev_text}\n")
+    # print(f"{snippet.prev_text}\n")
     print(f"{snippet.text}\n")
-    print(f"{snippet.next_text}")
+    if (snippet.text[len(snippet.text)-1] == ":"):
+      print(f"{snippet.next_text}")
     print("─" * 80)
