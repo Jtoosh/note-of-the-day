@@ -45,7 +45,10 @@ def parse_markdown (file_path):
         continue
       if isinstance(element, (block.Paragraph, block.CodeBlock, block.FencedCode, block.List)):
 
-        content_text = get_node_text(element)
+        if isinstance(element, block.List):
+          content_text = reconstruct_list(element)
+        else:
+          content_text = get_node_text(element)
 
         # skip empty paragraphs
         if not content_text.strip():
@@ -57,7 +60,10 @@ def parse_markdown (file_path):
           while j > 0 and isinstance(elements[j-1], block.BlankLine):
             j -= 1
           prev_element = elements[j-1]
-          prev_text = get_node_text(prev_element)
+          if isinstance(prev_element, block.List):
+            prev_text = reconstruct_list(prev_element)
+          else:
+            prev_text = get_node_text(prev_element)
           if isinstance(prev_element, block.Heading):
             prev_text = ""
 
@@ -67,7 +73,10 @@ def parse_markdown (file_path):
           while j < len(elements)-1 and isinstance(elements[k+1], block.BlankLine):
             k += 1
           next_element = elements[k+1]
-          next_text = get_node_text(next_element)
+          if isinstance(next_element, block.List):
+            next_text = reconstruct_list(next_element)
+          else:
+            next_text = get_node_text(next_element)
           if isinstance(next_element, block.Heading):
             next_text = ""
 
@@ -87,6 +96,23 @@ def get_node_text(node):
       return node.children
     return "".join(get_node_text(child) for child in node.children)
   return ""
+
+def reconstruct_list(list_elem):
+  list_lines = []
+
+  is_ordered = list_elem.ordered
+  start_num = list_elem.start if is_ordered else 1
+
+  for i, item in enumerate(list_elem.children):
+    if is_ordered:
+      prefix = f"{i+start_num}. "
+    else:
+      prefix = "- "
+
+    list_item_text = get_node_text(item)
+    list_lines.append(f"{prefix}{list_item_text}")
+
+  return "\n".join(list_lines)
 
 def generate_corpus():
     all_snippets = []
@@ -121,11 +147,11 @@ if __name__ == "__main__":
             print("usage: <python script.py -generate> to generate corpus\n or: <python script.py> to pick a snippet ")
             exit(0)
     snippet = pick_snippet()
-    print("─" * 40)
+    print("─" * 80)
     print("💡 Snippet of the Day: " + snippet.file)
-    print("─" * 40)
+    print("─" * 80)
     print_header_stack(snippet.header)
-    print(f"previous paragraph: {snippet.prev_text}")
-    print(f"snippet paragraph: {snippet.text}")
-    print(f"next paragraph:{snippet.next_text}")
-    print("─" * 40)
+    print(f"{snippet.prev_text}\n")
+    print(f"{snippet.text}\n")
+    print(f"{snippet.next_text}")
+    print("─" * 80)
