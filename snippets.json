@@ -158,7 +158,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "public class ScannerExample {\n    public static void main(String[] args) throws FileNotFoundException {\n        if (args.length == 1) {\n            var file = new File(args[0]);\n            if (file.exists()) {\n                var scanner = new Scanner(file);\n                while (scanner.hasNext()) {\n                    var text = scanner.next();\n                    System.out.println(text);\n                }\n            }\n        }\n    }\n}\n",
+        "text": "public class ScannerExample {\n    public static void main(String[] args) throws FileNotFoundException {\n        if (args.length == 1) {\n            var file = new File(args[0]);\n            if (file.exists()) {\n                var scanner = new Scanner(file);\n                while (scanner.hasNext()) {\n                    var text = scanner.next();\n                    System.out.println(text);\n                }\n            }\n        }\n    }\n}",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Reading Notes from \"Core Java for the Impatient\" 3rd Edition",
@@ -183,7 +183,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "public class Duck{\n    private String name;\n    private int age;\n    private String color;\n\n    public getName(){\n        return name;\n    }\n\n    public setName(String name){\n        this.name = name;\n    }\n}\n",
+        "text": "public class Duck{\n    private String name;\n    private int age;\n    private String color;\n\n    public getName(){\n        return name;\n    }\n\n    public setName(String name){\n        this.name = name;\n    }\n}",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Reading Notes from \"Core Java for the Impatient\" 3rd Edition",
@@ -339,7 +339,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "public interface CharIterator {\n    /** Returns true if there is another character to iterate. */\n    boolean hasNext();\n\n    /** Returns the next character. */\n    char next();\n}\n",
+        "text": "public interface CharIterator {\n    /** Returns true if there is another character to iterate. */\n    boolean hasNext();\n\n    /** Returns the next character. */\n    char next();\n}",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Reading Notes from \"Core Java for the Impatient\" 3rd Edition",
@@ -375,7 +375,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "public static class Dog extends Pet{\n\n}\n",
+        "text": "public static class Dog extends Pet{\n\n}",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Reading Notes from \"Core Java for the Impatient\" 3rd Edition",
@@ -519,7 +519,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "public void tryWithResources() throws IOException {\n    // Close is automatically called at the end of the try block\n    try (FileInputStream input = new FileInputStream(\"test.txt\")) {\n        System.out.println(input.read());\n    }\n    catch (FileNotFoundException e) {\n        // Handle the exception\n        System.out.println(\"An exception was thrown with this message \" + e.getMessage());\n    }\n    finally{\n        // Do something else\n        System.out.println(\"Finally block\");\n    }\n}\n",
+        "text": "public void tryWithResources() throws IOException {\n    // Close is automatically called at the end of the try block\n    try (FileInputStream input = new FileInputStream(\"test.txt\")) {\n        System.out.println(input.read());\n    }\n    catch (FileNotFoundException e) {\n        // Handle the exception\n        System.out.println(\"An exception was thrown with this message \" + e.getMessage());\n    }\n    finally{\n        // Do something else\n        System.out.println(\"Finally block\");\n    }\n}",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Reading Notes from \"Core Java for the Impatient\" 3rd Edition",
@@ -1263,7 +1263,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "1. Design is inherently iterative\nThere is a natural and effective loop of designing, implementing, and testing. Each step leads to an fuels the next. It doesn't work to design everything before doing any implementation, and niether does trying to implement without doing any designing. The best pattern to follow is to move naturally between both several times.\n2. Abstraction\nAbstraction is one of the tools for dealing with complexity. Programming languages provide low-level classes for dealing with simpler tasks. Handling complex tasks in terms of just these built-in, low level classes would carry too much cognitive burden, so the developer creates higher level classes out of these lower level ones, to abstract out details and make complex systems more understandable. Abstraction is created by using interfaces and classes. Abstractions generally represent real-world objects and their relationships and actions, whether those objects are internal to the program (HttpServer, Database), or a representation of an external object (User, Car, Store).\n3. ",
+        "text": "1. Design is inherently iterative\nThere is a natural and effective loop of designing, implementing, and testing. Each step leads to an fuels the next. It doesn't work to design everything before doing any implementation, and niether does trying to implement without doing any designing. The best pattern to follow is to move naturally between both several times.\n2. Abstraction\nAbstraction is one of the tools for dealing with complexity. Programming languages provide low-level classes for dealing with simpler tasks. Handling complex tasks in terms of just these built-in, low level classes would carry too much cognitive burden, so the developer creates higher level classes out of these lower level ones, to abstract out details and make complex systems more understandable. Abstraction is created by using interfaces and classes. Abstractions generally represent real-world objects and their relationships and actions, whether those objects are internal to the program (HttpServer, Database), or a representation of an external object (User, Car, Store).\n3.",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -1611,7 +1611,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "Predicate<String> strPred = s -> s.length() > 10;\n\nArray.sort(string array, (String value1, String value2) -> {\n  Integer.compare(value1.length() - value2.length())\n});\n",
+        "text": "Predicate<String> strPred = s -> s.length() > 10;\n\nArray.sort(string array, (String value1, String value2) -> {\n  Integer.compare(value1.length() - value2.length())\n});",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -2208,7 +2208,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "INSERT into books (title, author, genre, category_id) VALUES (\"Assisted\", \"John Stockton\", \"Biography\", 4)\n",
+        "text": "INSERT into books (title, author, genre, category_id) VALUES (\"Assisted\", \"John Stockton\", \"Biography\", 4)",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -2234,7 +2234,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "UPDATE games\nSET blackUsername = \"Jtoosh\"\nWHERE gameID = 4\n",
+        "text": "UPDATE games\nSET blackUsername = \"Jtoosh\"\nWHERE gameID = 4",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -2273,7 +2273,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "DELETE FROM authData\nWHERE username = \"jtoosh\"\n",
+        "text": "DELETE FROM authData\nWHERE username = \"jtoosh\"",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -2312,7 +2312,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "SELECT * FROM users WHERE username = \"jtoosh\"\n",
+        "text": "SELECT * FROM users WHERE username = \"jtoosh\"",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -2763,7 +2763,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "URL url = new URL(\"https://www.poptropica.com\");\n\nHttpURLConnection connection = (HttpURLConnection) url.openConnection();\n",
+        "text": "URL url = new URL(\"https://www.poptropica.com\");\n\nHttpURLConnection connection = (HttpURLConnection) url.openConnection();",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Class Notes",
@@ -4467,7 +4467,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "A good way to think about and understand phase 5, specifically the menus, is as 3 different REPLs that the user will move between. There is a depth to the REPLs as well, as they can only exit the program after exiting the first REPL. If they exit the third REPL, it moves them to the second, and exiting the second they move back to the first.  ",
+        "text": "A good way to think about and understand phase 5, specifically the menus, is as 3 different REPLs that the user will move between. There is a depth to the REPLs as well, as they can only exit the program after exiting the first REPL. If they exit the third REPL, it moves them to the second, and exiting the second they move back to the first.",
         "header": [
             "Computer Science 240: Advanced Software Construction",
             "Project Notes",
@@ -4791,7 +4791,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "for i in {1..2}; do printf 'y' >> other.txt; done;\n",
+        "text": "for i in {1..2}; do printf 'y' >> other.txt; done;",
         "header": [
             "CS 260: Web Programming",
             "Class Notes",
@@ -4863,7 +4863,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "*** Please tell me who you are\n\nRun\n  git config --global user.email \"you@example.com\"\n  git config --global user.name \"Your name\"\n",
+        "text": "*** Please tell me who you are\n\nRun\n  git config --global user.email \"you@example.com\"\n  git config --global user.name \"Your name\"",
         "header": [
             "CS 260: Web Programming",
             "Class Notes",
@@ -5475,7 +5475,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "@keyframes example {\n  from {\n    background-color: red;\n  }\n  to {\n    background-color: yellow;\n  }\n}\n\ndiv {\n  width: 100px;\n  height: 100px;\n  background-color: red;\n  animation-name: example;\n  animation-duration: 4s;\n}\n",
+        "text": "@keyframes example {\n  from {\n    background-color: red;\n  }\n  to {\n    background-color: yellow;\n  }\n}\n\ndiv {\n  width: 100px;\n  height: 100px;\n  background-color: red;\n  animation-name: example;\n  animation-duration: 4s;\n}",
         "header": [
             "CS 260: Web Programming",
             "Class Notes",
@@ -7688,7 +7688,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "int operand1 = 0;\nint operand2 = 0;\nscanf(\"%d %d\", &operand1, &operand2);\n",
+        "text": "int operand1 = 0;\nint operand2 = 0;\nscanf(\"%d %d\", &operand1, &operand2);",
         "header": [
             "Computer Science 224: Computer Systems",
             "Class Notes",
@@ -8036,7 +8036,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "char * p = &memory[0];\nint needed = (int *)(p+8);\n",
+        "text": "char * p = &memory[0];\nint needed = (int *)(p+8);",
         "header": [
             "Computer Science 224: Computer Systems",
             "Class Notes",
@@ -8168,7 +8168,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "char c = 0101 1001;\n\nchar mask =  0000 1111;\nchar first_nibble = c & mask;\n",
+        "text": "char c = 0101 1001;\n\nchar mask =  0000 1111;\nchar first_nibble = c & mask;",
         "header": [
             "Computer Science 224: Computer Systems",
             "Class Notes",
@@ -9501,7 +9501,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "1 decode2:\n2 subq %rdx, %rsi  # y = y - z\n3 imulq %rsi, %rdi # x = x * y\n4 movq %rsi, %rax  # val = y\n5 salq $63, %rax   # val << 63\n6 sarq $63, %rax   # val >> 63\n7 xorq %rdi, %rax  # val = val ^ x\n8 ret\n",
+        "text": "1 decode2:\n2 subq %rdx, %rsi  # y = y - z\n3 imulq %rsi, %rdi # x = x * y\n4 movq %rsi, %rax  # val = y\n5 salq $63, %rax   # val << 63\n6 sarq $63, %rax   # val >> 63\n7 xorq %rdi, %rax  # val = val ^ x\n8 ret",
         "header": [
             "Computer Science 224: Computer Systems",
             "Lab Notes",
@@ -9525,7 +9525,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": " long decode2(long x, long y, long z){\n     y = y - z;\n     x = x * y;\n     long val = y;\n     val = val << 63;\n     val = val >> 63; //I don't know how to do arithmetic shift yet.\n     val = val ^ x;\n     return val;\n }\n",
+        "text": "long decode2(long x, long y, long z){\n     y = y - z;\n     x = x * y;\n     long val = y;\n     val = val << 63;\n     val = val >> 63; //I don't know how to do arithmetic shift yet.\n     val = val ^ x;\n     return val;\n }",
         "header": [
             "Computer Science 224: Computer Systems",
             "Lab Notes",
@@ -9561,7 +9561,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "long loop (long x, long y, long z){\n  long result = 0;\n  long mask;\n  for (mask = 1; mask != mask?; mask >> n){\n    result |= x & mask;\n  }\n}\n\n",
+        "text": "long loop (long x, long y, long z){\n  long result = 0;\n  long mask;\n  for (mask = 1; mask != mask?; mask >> n){\n    result |= x & mask;\n  }\n}",
         "header": [
             "Computer Science 224: Computer Systems",
             "Lab Notes",
@@ -9753,7 +9753,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "int padding = (4- (width % 4)) % 4\n",
+        "text": "int padding = (4- (width % 4)) % 4",
         "header": [
             "Computer Science 224: Computer Systems",
             "Project Notes",
@@ -9777,7 +9777,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "int padding = width % 4\n",
+        "text": "int padding = width % 4",
         "header": [
             "Computer Science 224: Computer Systems",
             "Project Notes",
@@ -10409,7 +10409,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "dependencies {\n  compile 'org.apache.commons:commons-lang3:3.9'\n}\n",
+        "text": "dependencies {\n  compile 'org.apache.commons:commons-lang3:3.9'\n}",
         "header": [
             "Software Engineering Lab 2: Testing and Reviewing",
             "Module 2: Dependency Management"
@@ -10497,7 +10497,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": " function (Closure closure) {\n   closure.call()\n }\n\n function {\n   println \"Hello, world!\"\n }\n\n function {\n   println \"Goodbye, world!\"\n }\n",
+        "text": "function (Closure closure) {\n   closure.call()\n }\n\n function {\n   println \"Hello, world!\"\n }\n\n function {\n   println \"Goodbye, world!\"\n }",
         "header": [
             "Software Engineering Lab 2: Testing and Reviewing",
             "Module 2: Dependency Management"
@@ -12766,7 +12766,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "# If you haven't seen this syntax before, the \": str\" and \"-> str\" are type annotations for Python.\n# They just give you a clue into what type the input variable should be and the return type of the\n# function respectively. It is good practice to label your functions like this unless you need the type\n# to be variable.\n\nfrom sys import argv\n\n\n# TODO: This code should return \"Hello World\" plus whatever the value of \"input\" is.\ndef compute(input: str) -> str:\n    # YOUR CODE GOES HERE\n    return \"Hello World \" + input\n",
+        "text": "# If you haven't seen this syntax before, the \": str\" and \"-> str\" are type annotations for Python.\n# They just give you a clue into what type the input variable should be and the return type of the\n# function respectively. It is good practice to label your functions like this unless you need the type\n# to be variable.\n\nfrom sys import argv\n\n\n# TODO: This code should return \"Hello World\" plus whatever the value of \"input\" is.\ndef compute(input: str) -> str:\n    # YOUR CODE GOES HERE\n    return \"Hello World \" + input",
         "header": [
             "Computer Science 236: Discrete Structures",
             "Lecture Notes",
@@ -12982,7 +12982,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "    graph TD\n    A[Input the Token] --> B[Finite State Machine]\n    B --> C[Output the Token]\n    D[Specific String] -..-> B\n",
+        "text": "graph TD\n    A[Input the Token] --> B[Finite State Machine]\n    B --> C[Output the Token]\n    D[Specific String] -..-> B",
         "header": [
             "Computer Science 236: Discrete Structures",
             "Lecture Notes",
@@ -13294,7 +13294,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "[a-zA-Z0-9]*{[a-zA-Z0-9]*}\n",
+        "text": "[a-zA-Z0-9]*{[a-zA-Z0-9]*}",
         "header": [
             "Computer Science 236: Discrete Structures",
             "Lecture Notes",
@@ -14374,7 +14374,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "def test_zero_division():\n    with pytest.raises(ZeroDivisionError) as excinfo:\n        1 / 0\n    assert excinfo.type is ZeroDivisionError\n    \n",
+        "text": "def test_zero_division():\n    with pytest.raises(ZeroDivisionError) as excinfo:\n        1 / 0\n    assert excinfo.type is ZeroDivisionError",
         "header": [
             "Computer Science 236: Discrete Structures",
             "Lecture Notes",
@@ -14782,7 +14782,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "Schemes:\n\ns0(v,w,x,y,z)\ns1(a,b,c,d,e)\ns2(a,b,c,d,e)\n\ns3(a,b,c,d,e,f,g,i)\n\ns4(a,b,c,d,e)\n\ns5(a,b,c,d,e)\n\n\n\n\nFacts:\n\ns0('a','b','c','d','e').\ns2('f','g','h','i','j').\n\nRules:\n\ns1(a,b,c,d,e) :- s0(a,b,c,d,e).\n\ns1(a,b,c,d,e) :- s2(b,c,d,e,a).\ns2(a,b,c,d,e) :- s1(b,c,d,e,a).\ns1(a,b,c,d,e) :- s1(b,a,c,d,e).\n\ns3(a,f,b,g,c,h,d,i) :- s1(a,b,c,d,e),s2(f,g,h,i,j).\n\ns5(a,b,c,d,e) :- s0(a,b,c,d,e).\n\ns4(a,b,c,d,e) :- s3(a,b,z,y,c,d,e,i),s5(m,n,x,y,z).\ns5(a,b,c,d,e) :- s4(a,b,c,d,e),s5(a,w,x,y,z).\ns5(a,b,c,d,e) :- s5(e,a,b,c,d).\n\n\nQueries:\n\n#scc1o1(a,b,c,d,e)?\n#scc2o1(a,b,c,d,e)?\n#scc1o2(a,b,c,d,e,f,g,h,i,j)?\n#scc1o3(a,b,c,d,e,f)?\n#s3(a,b,c,d,e,,g)?\ns5(a,b,c,d,e)?\n",
+        "text": "Schemes:\n\ns0(v,w,x,y,z)\ns1(a,b,c,d,e)\ns2(a,b,c,d,e)\n\ns3(a,b,c,d,e,f,g,i)\n\ns4(a,b,c,d,e)\n\ns5(a,b,c,d,e)\n\n\n\n\nFacts:\n\ns0('a','b','c','d','e').\ns2('f','g','h','i','j').\n\nRules:\n\ns1(a,b,c,d,e) :- s0(a,b,c,d,e).\n\ns1(a,b,c,d,e) :- s2(b,c,d,e,a).\ns2(a,b,c,d,e) :- s1(b,c,d,e,a).\ns1(a,b,c,d,e) :- s1(b,a,c,d,e).\n\ns3(a,f,b,g,c,h,d,i) :- s1(a,b,c,d,e),s2(f,g,h,i,j).\n\ns5(a,b,c,d,e) :- s0(a,b,c,d,e).\n\ns4(a,b,c,d,e) :- s3(a,b,z,y,c,d,e,i),s5(m,n,x,y,z).\ns5(a,b,c,d,e) :- s4(a,b,c,d,e),s5(a,w,x,y,z).\ns5(a,b,c,d,e) :- s5(e,a,b,c,d).\n\n\nQueries:\n\n#scc1o1(a,b,c,d,e)?\n#scc2o1(a,b,c,d,e)?\n#scc1o2(a,b,c,d,e,f,g,h,i,j)?\n#scc1o3(a,b,c,d,e,f)?\n#s3(a,b,c,d,e,,g)?\ns5(a,b,c,d,e)?",
         "header": [
             "Computer Science 236: Discrete Structures",
             "Lecture Notes",
@@ -14856,7 +14856,7 @@
     },
     {
         "__type__": "Snippet",
-        "text": "- biome configs are inherited from the root biome.json file, so locla biome.json files can be overridden by the root config.\n- biome uses a files section to specify which files to include or ignore.\n- .nvmrc files can be used to specify a default version of Node to run in the CLI.\n- Typescript enforces added protection against errors caused by potential null values, usually giving a message along the lines of \"object may be null\". This can be overcome using the Null Assertion operator, !, Optional Chaining ? (won't try to access attributes if an object is null), or Type assertions, var as MyType.\n- As I worked on changing the title card component DeckCard to receive props from the study component, I learned that each prop needs to have the correct type annotations.\n- I also learned that declaring the type annotations can be done a bit cleaner than the all-in-one line method by using an interface. TS interfaces work similarly to Java interfaces, but they are more to define the structure and types of a class, functions, or array, rather than the method signatures. The method signatures can be defined, however. Here is the what I used in deckCard.tsx\n- I was working with toasts to test them out today, and wrestled with them for a bit. I learned that on top of the shad/cn component, I had to install the toast library sonner and then put a <Toaster/ > component in the __root.tsx file of my app.\ninterface DeckCardProps {\nstudyMode: boolean;\nsetStudyMode: Dispatch<SetStateAction<boolean>>;\n}\n",
+        "text": "- biome configs are inherited from the root biome.json file, so locla biome.json files can be overridden by the root config.\n- biome uses a files section to specify which files to include or ignore.\n- .nvmrc files can be used to specify a default version of Node to run in the CLI.\n- Typescript enforces added protection against errors caused by potential null values, usually giving a message along the lines of \"object may be null\". This can be overcome using the Null Assertion operator, !, Optional Chaining ? (won't try to access attributes if an object is null), or Type assertions, var as MyType.\n- As I worked on changing the title card component DeckCard to receive props from the study component, I learned that each prop needs to have the correct type annotations.\n- I also learned that declaring the type annotations can be done a bit cleaner than the all-in-one line method by using an interface. TS interfaces work similarly to Java interfaces, but they are more to define the structure and types of a class, functions, or array, rather than the method signatures. The method signatures can be defined, however. Here is the what I used in deckCard.tsx\n- I was working with toasts to test them out today, and wrestled with them for a bit. I learned that on top of the shad/cn component, I had to install the toast library sonner and then put a <Toaster/ > component in the __root.tsx file of my app.\ninterface DeckCardProps {\nstudyMode: boolean;\nsetStudyMode: Dispatch<SetStateAction<boolean>>;\n}",
         "header": [
             "Study Web App Redesign Notes"
         ],
