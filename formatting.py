@@ -2,9 +2,12 @@ import json
 import re
 import shutil
 import textwrap
+from typing import Any, Dict, Optional
+
+from snippet import Snippet
 
 
-def build_snippet_payload(snippet):
+def build_snippet_payload(snippet: Snippet) -> Dict[str, Any]:
     """
     Build a UI-friendly payload for both terminal and frontend rendering.
     """
@@ -23,7 +26,7 @@ def build_snippet_payload(snippet):
     }
 
 
-def wrap_markdownish_text(text, width):
+def wrap_markdownish_text(text: str, width: int) -> str:
     """
     Wrap plain text while preserving markdown-like list prefixes.
     """
@@ -57,7 +60,7 @@ def wrap_markdownish_text(text, width):
     return "\n".join(wrapped_lines)
 
 
-def render_terminal_snippet(payload, width=None):
+def render_terminal_snippet(payload: Dict[str, Any], width: Optional[int] = None) -> str:
     """
     Render the snippet as a readable terminal card.
     """
@@ -86,6 +89,6 @@ def render_terminal_snippet(payload, width=None):
     return "\n".join(sections)
 
 
-def render_json_snippet(payload):
+def render_json_snippet(payload: Dict[str, Any]) -> str:
     """Serialize snippet payload for frontend/widget consumption."""
     return json.dumps(payload, indent=2, ensure_ascii=False)

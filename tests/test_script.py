@@ -11,7 +11,7 @@ from snippet import Snippet, SnippetEncoder
 
 
 class ScriptTests(unittest.TestCase):
-    def test_pick_snippet_reads_corpus_and_uses_random_choice(self):
+    def test_pick_snippet_reads_corpus_and_uses_random_choice(self) -> None:
         with TemporaryDirectory() as tmpdir:
             out_file = Path(tmpdir) / "snippets.json"
             snippets = [
@@ -31,7 +31,7 @@ class ScriptTests(unittest.TestCase):
             self.assertEqual(chosen.text, "second")
             self.assertEqual(chosen.file, "two.md")
 
-    def test_main_json_output(self):
+    def test_main_json_output(self) -> None:
         snippet = Snippet(
             text="Key commands:",
             header=["CS 260", "Shell"],
@@ -51,7 +51,7 @@ class ScriptTests(unittest.TestCase):
         self.assertEqual(parsed["source_file"], "notes.md")
         self.assertEqual(parsed["continuation"], "- ls")
 
-    def test_main_text_output(self):
+    def test_main_text_output(self) -> None:
         snippet = Snippet(
             text="Key commands:",
             header=["CS 260", "Shell"],
@@ -74,7 +74,7 @@ class ScriptTests(unittest.TestCase):
         self.assertIn("Path:   CS 260 > Shell", output)
         self.assertIn("[Continuation]", output)
 
-    def test_main_generate_calls_corpus_generation(self):
+    def test_main_generate_calls_corpus_generation(self) -> None:
         snippet = Snippet(
             text="Done.",
             header=["H1"],

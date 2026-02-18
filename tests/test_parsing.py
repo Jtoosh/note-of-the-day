@@ -7,7 +7,7 @@ from parsing import generate_corpus, parse_markdown
 
 
 class ParsingTests(unittest.TestCase):
-    def test_parse_markdown_extracts_heading_context_and_adjacent_text(self):
+    def test_parse_markdown_extracts_heading_context_and_adjacent_text(self) -> None:
         with TemporaryDirectory() as tmpdir:
             md_file = Path(tmpdir) / "sample.md"
             md_file.write_text(
@@ -48,7 +48,7 @@ class ParsingTests(unittest.TestCase):
             self.assertEqual(final_note.text, "Final note.")
             self.assertEqual(final_note.header, ["Course", "Topic"])
 
-    def test_generate_corpus_writes_output_file_and_returns_snippets(self):
+    def test_generate_corpus_writes_output_file_and_returns_snippets(self) -> None:
         with TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             notes_dir = tmp / "notes"
@@ -71,7 +71,7 @@ class ParsingTests(unittest.TestCase):
             self.assertEqual(len(raw), 2)
             self.assertEqual(raw[0]["__type__"], "Snippet")
 
-    def test_generate_corpus_returns_warning_when_no_markdown_files(self):
+    def test_generate_corpus_returns_warning_when_no_markdown_files(self) -> None:
         with TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             notes_dir = tmp / "empty_notes"

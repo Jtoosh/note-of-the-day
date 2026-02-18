@@ -1,12 +1,13 @@
 import json
 import os
+from typing import Any, Iterator, List, Sequence, Tuple, Union
 
 import marko
 from marko import block, inline
 
 from snippet import Snippet, SnippetEncoder
 
-SNIPPET_BLOCK_TYPES = (
+SNIPPET_BLOCK_TYPES: Tuple[type, ...] = (
     block.Paragraph,
     block.CodeBlock,
     block.FencedCode,
@@ -14,7 +15,7 @@ SNIPPET_BLOCK_TYPES = (
 )
 
 
-def get_markdown_files(root):
+def get_markdown_files(root: str) -> Iterator[str]:
     """Recursively gather all .md files under a directory."""
     for dirpath, _, files in os.walk(root):
         for file in files:
@@ -22,7 +23,7 @@ def get_markdown_files(root):
                 yield os.path.join(dirpath, file)
 
 
-def get_node_text(node):
+def get_node_text(node: Any) -> str:
     """Flatten a Marko node into plain text recursively."""
     if isinstance(node, (inline.RawText, inline.CodeSpan)):
         return node.children
@@ -35,7 +36,7 @@ def get_node_text(node):
     return ""
 
 
-def reconstruct_list(list_elem):
+def reconstruct_list(list_elem: block.List) -> str:
     """Rebuild list markdown so list item structure is preserved."""
     list_lines = []
     is_ordered = list_elem.ordered
@@ -49,14 +50,14 @@ def reconstruct_list(list_elem):
     return "\n".join(list_lines)
 
 
-def get_block_text(element):
+def get_block_text(element: Any) -> str:
     """Extract text from a supported snippet block."""
     if isinstance(element, block.List):
         return reconstruct_list(element)
     return get_node_text(element)
 
 
-def get_adjacent_text(elements, start_index, direction):
+def get_adjacent_text(elements: Sequence[Any], start_index: int, direction: int) -> str:
     """
     Return nearest non-blank sibling text in the requested direction.
 
@@ -78,7 +79,7 @@ def get_adjacent_text(elements, start_index, direction):
     return get_block_text(neighbor)
 
 
-def parse_markdown(file_path):
+def parse_markdown(file_path: str) -> List[Snippet]:
     """Parse a markdown file into snippet objects."""
     with open(file_path, "r", encoding="utf-8") as f:
         text = f.read()
@@ -116,8 +117,8 @@ def parse_markdown(file_path):
     return doc_snippets
 
 
-def generate_corpus(notes_dir, out_file):
-    all_snippets = []
+def generate_corpus(notes_dir: str, out_file: str) -> Union[List[Snippet], str]:
+    all_snippets: List[Snippet] = []
 
     for path in get_markdown_files(notes_dir):
         file_snippets = parse_markdown(path)

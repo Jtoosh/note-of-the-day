@@ -11,7 +11,7 @@ from snippet import Snippet
 
 
 class FormattingTests(unittest.TestCase):
-    def test_build_snippet_payload_includes_continuation_for_colon_suffix(self):
+    def test_build_snippet_payload_includes_continuation_for_colon_suffix(self) -> None:
         snippet = Snippet(
             text="Key commands:",
             header=["CS 260", "Shell"],
@@ -30,7 +30,7 @@ class FormattingTests(unittest.TestCase):
         self.assertEqual(payload["continuation"], "- ls\n- cat")
         self.assertEqual(payload["previous_context"], "Some previous context")
 
-    def test_build_snippet_payload_omits_continuation_when_not_colon_terminated(self):
+    def test_build_snippet_payload_omits_continuation_when_not_colon_terminated(self) -> None:
         snippet = Snippet(
             text="A complete sentence.",
             header=[],
@@ -45,7 +45,7 @@ class FormattingTests(unittest.TestCase):
         self.assertEqual(payload["continuation"], "")
         self.assertEqual(payload["previous_context"], "")
 
-    def test_wrap_markdownish_text_preserves_bullet_prefix(self):
+    def test_wrap_markdownish_text_preserves_bullet_prefix(self) -> None:
         wrapped = wrap_markdownish_text("- this is a long bullet entry", width=12)
         wrapped_lines = wrapped.splitlines()
 
@@ -53,7 +53,7 @@ class FormattingTests(unittest.TestCase):
         self.assertGreater(len(wrapped_lines), 1)
         self.assertTrue(wrapped_lines[1].startswith("  "))
 
-    def test_render_terminal_snippet_contains_sections_and_continuation(self):
+    def test_render_terminal_snippet_contains_sections_and_continuation(self) -> None:
         payload = {
             "title": "Snippet of the Day",
             "source_file": "notes.md",
@@ -72,7 +72,7 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("[Continuation]", output)
         self.assertIn("- ls", output)
 
-    def test_render_json_snippet_is_valid_json(self):
+    def test_render_json_snippet_is_valid_json(self) -> None:
         payload = {
             "title": "Snippet of the Day",
             "source_file": "notes.md",

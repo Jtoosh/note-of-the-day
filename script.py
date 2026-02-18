@@ -2,6 +2,7 @@ import argparse
 import json
 import random
 import sys
+from typing import Sequence
 
 from formatting import build_snippet_payload, render_json_snippet, render_terminal_snippet
 from parsing import generate_corpus
@@ -13,13 +14,13 @@ MIN_LEN = 640  # minimum snippet length (chars)
 MAX_LEN = 960  # maximum snippet length (chars)
 
 
-def pick_snippet():
+def pick_snippet() -> Snippet:
     with open(OUT_FILE, "r", encoding="utf-8") as f:
         snippet_corpus = json.load(f, object_hook=Snippet.custom_decoder)
     return random.choice(snippet_corpus)
 
 
-def parse_args(argv):
+def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate or display a note snippet.")
     parser.add_argument(
         "-generate",
@@ -41,7 +42,7 @@ def parse_args(argv):
     return parser.parse_args(argv[1:])
 
 
-def main(argv):
+def main(argv: Sequence[str]) -> int:
     args = parse_args(argv)
 
     if args.generate:

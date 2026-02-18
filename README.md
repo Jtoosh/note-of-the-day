@@ -2,12 +2,190 @@
 
 ## About
 
-My ambient flashcard app: note of the day
+`note-of-the-day` is an ambient flashcard-style CLI app that pulls snippets from markdown notes and prints one snippet at runtime.
 
-I find myself often taking diligent notes in my college classes,  but not as often going back to review them. Over time, I've tried to get better and only putting the most precise and needed pieces of info into my notes, to keep fluff out. But still, I rarely review them.
+The project is organized so parsing, formatting, and orchestration are separate, which makes it easier to maintain and test as the app grows toward a frontend/widget use case.
 
-I also feel that many of the most important things I've learned in my classes are things that I fundamentally understand, but when I'm not using them consistently, I forget them. If I review my notes real fast things click again, but I don't find myself doing that as much as I'd like.
+## Technical Overview
 
-This app is my attempt to remedy that, or at least alleviate it. Note of the day is meant to act like a "quote of the day" service, but for your notes. My vision is to allow a user to pick a file or directory, and have a simple desktop GUI display selected snippets of notes. Feel free to leave suggestions or issues that are found.
+### High-Level Flow
 
-## Overview
+1. Parse markdown files from a notes directory into `Snippet` objects.
+2. Serialize snippets to `snippets.json` (corpus generation mode).
+3. Load corpus, pick one snippet randomly.
+4. Convert snippet into a UI-friendly payload.
+5. Render payload as either terminal-friendly text or JSON for frontend consumption.
+
+### Project Structure
+
+- `script.py`: CLI entrypoint and orchestration layer.
+- `server/app.py`: FastAPI server layer for HTTP clients.
+- `parsing.py`: markdown parsing and corpus generation logic.
+- `formatting.py`: output payload construction + text/JSON rendering.
+- `snippet.py`: `Snippet` data object + JSON encoder/decoder.
+- `snippets.json`: generated snippet corpus.
+- `tests/`: unit tests for formatting, parsing/generation, and main script behavior.
+
+## Core Modules
+
+### `snippet.py`
+
+Defines the core data model:
+
+- `Snippet(text, header, file, prev_text, next_text)`
+- `SnippetEncoder`: converts `Snippet` objects to JSON records.
+- `Snippet.custom_decoder`: reconstructs `Snippet` objects when reading JSON.
+
+This model is the contract between parsing, persistence, selection, and formatting.
+
+### `parsing.py`
+
+Responsible for extracting snippets from markdown:
+
+- `get_markdown_files(root)`: recursively finds `.md` files.
+- `get_node_text(node)`: recursively flattens Marko AST nodes to text.
+- `reconstruct_list(list_elem)`: rebuilds list blocks (`-`, `1.`) so list structure is preserved.
+- `get_adjacent_text(elements, start_index, direction)`: finds nearest non-blank sibling block for `prev_text`/`next_text`, while treating headings as structural boundaries.
+- `parse_markdown(file_path)`: converts a markdown file into snippet objects while maintaining heading context (`heading_stack`).
+- `generate_corpus(notes_dir, out_file)`: parses all markdown files and writes JSON corpus.
+
+#### Parsing behavior notes
+
+- Heading context is hierarchical: lower/equal heading levels replace prior levels in the heading stack.
+- Snippet blocks currently include paragraphs, code blocks, fenced code blocks, and lists.
+- Blank text blocks are ignored.
+- Neighbor context (`prev_text`, `next_text`) skips blank lines and excludes headings as context text.
+
+### `formatting.py`
+
+Responsible for turning a `Snippet` into display-ready output:
+
+- `build_snippet_payload(snippet)`: normalized payload for both terminal and frontend output.
+- `wrap_markdownish_text(text, width)`: wraps text while preserving list prefixes and indented blocks.
+- `render_terminal_snippet(payload, width=None)`: card-style CLI rendering with source/path/content sections.
+- `render_json_snippet(payload)`: JSON serialization for frontend/widget integration.
+
+#### Payload schema
+
+- `title`: display title (currently `Snippet of the Day`).
+- `source_file`: source markdown filename.
+- `breadcrumbs`: heading stack as list.
+- `breadcrumbs_text`: heading stack joined for display.
+- `text`: primary snippet text.
+- `continuation`: populated when snippet ends with `:` and has next context.
+- `previous_context`: previous context block.
+
+### `script.py`
+
+Thin coordinator layer:
+
+- CLI args:
+  - `-generate`: regenerate corpus before selecting snippet.
+  - `--format text|json`: choose output format.
+  - `--width N`: optional terminal render width.
+- `pick_snippet()`: loads corpus and chooses random snippet.
+- `main(argv)`: orchestrates generation, selection, payload creation, and rendering.
+
+### `server/app.py`
+
+Backend API layer:
+
+- `GET /health`: simple readiness check.
+- `GET /api/snippet`: returns one random snippet payload as JSON.
+- `POST /api/corpus/regenerate`: rebuilds `snippets.json` from markdown notes.
+
+Configuration via environment variables:
+
+- `SNIPPETS_FILE`: corpus JSON path (defaults to `<project>/snippets.json`).
+- `NOTES_DIR`: markdown notes directory used by regeneration endpoint.
+- `CORS_ALLOW_ORIGINS`: comma-separated CORS origins (defaults to `*`).
+
+## CLI Usage
+
+### Show snippet as formatted terminal card
+
+```bash
+.venv/bin/python script.py --format text
+```
+
+### Show snippet as JSON payload (frontend/widget-ready)
+
+```bash
+.venv/bin/python script.py --format json
+```
+
+### Regenerate corpus then output snippet
+
+```bash
+.venv/bin/python script.py -generate --format text
+```
+
+## Backend API Usage
+
+### Install dependencies
+
+```bash
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+### Run the server
+
+```bash
+.venv/bin/python -m uvicorn server.app:app --reload
+```
+
+### Example request
+
+```bash
+curl http://127.0.0.1:8000/api/snippet
+```
+
+## Testing
+
+Tests use Python stdlib `unittest` and run with discovery.
+
+### Run tests
+
+```bash
+.venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+### Test Coverage Overview
+
+#### `tests/test_formatting.py`
+
+Validates output/presentation behavior:
+
+- Payload field correctness and continuation rules.
+- Breadcrumb string generation.
+- Text wrapping behavior for markdown-like bullets.
+- Terminal card rendering sections (`Source`, `Path`, continuation block).
+- JSON rendering output validity/round-tripping.
+
+#### `tests/test_parsing.py`
+
+Validates markdown parsing and corpus generation:
+
+- Heading stack behavior across heading levels.
+- Snippet extraction from paragraphs and lists.
+- `prev_text` and `next_text` adjacency behavior.
+- Corpus file creation and JSON record shape.
+- Empty-input behavior when no markdown files are available.
+
+#### `tests/test_script.py`
+
+Validates orchestration and CLI output paths:
+
+- Snippet selection from saved corpus.
+- JSON output mode from `main()`.
+- Text output mode from `main()`.
+- `-generate` path calls corpus generation with expected paths.
+
+## Requirements
+
+- Python 3.x
+- [`marko`](https://pypi.org/project/marko/) for markdown parsing
+- [`fastapi`](https://pypi.org/project/fastapi/) for the HTTP API
+- [`uvicorn`](https://pypi.org/project/uvicorn/) as the ASGI server
+
+Install dependencies in your virtual environment before running generation/parsing.
