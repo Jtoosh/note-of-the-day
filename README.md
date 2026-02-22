@@ -2,9 +2,11 @@
 
 ## About
 
-`note-of-the-day` is an ambient flashcard-style CLI app that pulls snippets from markdown notes and prints one snippet at runtime.
+`note-of-the-day` is an ambient flashcard-style app that can run as a CLI tool or through a small web frontend. It pulls snippets from markdown notes and displays one snippet at runtime.
 
-The project is organized so parsing, formatting, and orchestration are separate, which makes it easier to maintain and test as the app grows toward a frontend/widget use case.
+The project is organized so parsing, formatting, backend API, and frontend UI are separated, making the system easier to maintain and extend.
+
+**AI Use Disclosure**: This project has been a personal experiment in using Agentic Coding tools. The vast majority of the code in this project was written by Codex by OpenAI as I prompted it, with my personal review and testing.
 
 ## Technical Overview
 
@@ -15,11 +17,13 @@ The project is organized so parsing, formatting, and orchestration are separate,
 3. Load corpus, pick one snippet randomly.
 4. Convert snippet into a UI-friendly payload.
 5. Render payload as either terminal-friendly text or JSON for frontend consumption.
+6. Frontend requests `/api/snippet` and renders the snippet card in the browser.
 
 ### Project Structure
 
 - `script.py`: CLI entrypoint and orchestration layer.
 - `server/app.py`: FastAPI server layer for HTTP clients.
+- `frontend/`: TypeScript React app (Vite) for browser UI.
 - `parsing.py`: markdown parsing and corpus generation logic.
 - `formatting.py`: output payload construction + text/JSON rendering.
 - `snippet.py`: `Snippet` data object + JSON encoder/decoder.
@@ -100,6 +104,26 @@ Configuration via environment variables:
 - `NOTES_DIR`: markdown notes directory used by regeneration endpoint.
 - `CORS_ALLOW_ORIGINS`: comma-separated CORS origins (defaults to `*`).
 
+### `frontend/` (TypeScript React + Vite)
+
+Frontend stack and behavior:
+
+- React 18 + TypeScript.
+- Vite dev server with an API proxy to the FastAPI backend.
+- Single-page app in `frontend/src/App.tsx` that:
+  - Fetches `GET /api/snippet` on initial load.
+  - Displays snippet metadata (`source_file`, `breadcrumbs_text`) and body text.
+  - Includes a `Get New Snippet` button that fetches another random snippet.
+  - Handles loading and error states.
+
+Frontend build/config files:
+
+- `frontend/package.json`: scripts/dependencies.
+- `frontend/vite.config.ts`: dev server config and `/api` proxy to `http://127.0.0.1:8000`.
+- `frontend/tsconfig*.json`: TypeScript compiler settings.
+- `frontend/src/App.tsx`: page UI + fetch logic.
+- `frontend/src/App.css` and `frontend/src/index.css`: styling.
+
 ## CLI Usage
 
 ### Show snippet as formatted terminal card
@@ -139,6 +163,40 @@ Configuration via environment variables:
 ```bash
 curl http://127.0.0.1:8000/api/snippet
 ```
+
+## Frontend Usage
+
+### Install frontend dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### Run frontend dev server
+
+```bash
+npm run dev
+```
+
+By default, Vite serves the frontend at `http://127.0.0.1:5173` and proxies `/api/*` requests to `http://127.0.0.1:8000`.
+
+### Run full stack locally (recommended)
+
+In terminal 1 (backend):
+
+```bash
+.venv/bin/python -m uvicorn server.app:app --reload --port 8000
+```
+
+In terminal 2 (frontend):
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open `http://127.0.0.1:5173` and use **Get New Snippet** to load random snippets from the backend.
 
 ## Testing
 
@@ -184,6 +242,7 @@ Validates orchestration and CLI output paths:
 ## Requirements
 
 - Python 3.x
+- Node.js 18+ and npm (for frontend)
 - [`marko`](https://pypi.org/project/marko/) for markdown parsing
 - [`fastapi`](https://pypi.org/project/fastapi/) for the HTTP API
 - [`uvicorn`](https://pypi.org/project/uvicorn/) as the ASGI server

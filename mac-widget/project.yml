@@ -1,0 +1,38 @@
+name: NoteOfTheDayMac
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+targets:
+  NoteOfTheDayMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Shared
+      - path: Sources/App
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.NoteOfTheDayMac
+        INFOPLIST_FILE: Sources/App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/App/NoteOfTheDayMac.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+    dependencies:
+      - target: NoteOfTheDayWidgetExtension
+  NoteOfTheDayWidgetExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Sources/Shared
+      - path: Sources/Widget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.NoteOfTheDayMac.WidgetExtension
+        INFOPLIST_FILE: Sources/Widget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/Widget/NoteOfTheDayWidgetExtension.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES

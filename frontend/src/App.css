@@ -1,0 +1,102 @@
+.page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background:
+    radial-gradient(circle at top right, #d9f4d3 0, transparent 45%),
+    radial-gradient(circle at bottom left, #f7ddc4 0, transparent 42%),
+    #f7f5ee;
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  width: min(760px, 100%);
+  background: #fffdf7;
+  border: 1px solid #d4d3cd;
+  border-radius: 18px;
+  padding: clamp(1rem, 2vw, 2rem);
+  box-shadow: 0 14px 30px rgba(21, 35, 16, 0.1);
+  display: grid;
+  gap: 1rem;
+}
+
+.card-header h1 {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: #4d5a3f;
+}
+
+.meta {
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+  color: #2e3e2f;
+}
+
+.meta p {
+  margin: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.meta span,
+.continuation span {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5f6a4f;
+}
+
+.context {
+  margin: 0;
+  border-left: 3px solid #97af79;
+  padding-left: 0.85rem;
+  color: #41543e;
+  font-style: italic;
+}
+
+.snippet-text,
+.continuation {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.state {
+  margin: 0;
+  color: #455244;
+}
+
+.error {
+  color: #7e2323;
+}
+
+button {
+  justify-self: start;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2f6e3f, #5d8a45);
+  color: #f9fff7;
+  padding: 0.7rem 1.2rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+button:hover:enabled {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 16px rgba(30, 70, 45, 0.2);
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
