@@ -7,7 +7,7 @@ from parsing import generate_corpus, parse_markdown
 
 
 class ParsingTests(unittest.TestCase):
-    def test_parse_markdown_extracts_heading_context_and_adjacent_text(self) -> None:
+    def test_parse_markdown_builds_context_aware_snippets(self) -> None:
         with TemporaryDirectory() as tmpdir:
             md_file = Path(tmpdir) / "sample.md"
             md_file.write_text(
@@ -23,30 +23,39 @@ class ParsingTests(unittest.TestCase):
 
             snippets = parse_markdown(str(md_file))
 
-            self.assertEqual(len(snippets), 4)
+            # Intro block stands alone under the top-level heading.
+            self.assertEqual(snippets[0].text, "Intro paragraph.")
+            self.assertEqual(snippets[0].header, ["Course"])
 
-            intro = snippets[0]
-            key_commands = snippets[1]
-            list_block = snippets[2]
-            final_note = snippets[3]
+            # Topic snippet is expanded into a self-contained context window.
+            self.assertEqual(len(snippets), 2)
+            self.assertEqual(
+                snippets[1].text,
+                "Key commands:\n\n- ls\n- cat\n\nFinal note.",
+            )
+            self.assertEqual(snippets[1].header, ["Course", "Topic"])
+            self.assertEqual(snippets[1].prev_text, "")
+            self.assertEqual(snippets[1].next_text, "")
 
-            self.assertEqual(intro.text, "Intro paragraph.")
-            self.assertEqual(intro.header, ["Course"])
-            self.assertEqual(intro.prev_text, "")
-            self.assertEqual(intro.next_text, "")
+    def test_parse_markdown_is_deterministic(self) -> None:
+        with TemporaryDirectory() as tmpdir:
+            md_file = Path(tmpdir) / "sample.md"
+            md_file.write_text(
+                "# Header\n\n"
+                "Definition:\n\n"
+                "- step one\n"
+                "- step two\n\n"
+                "Summary line.\n",
+                encoding="utf-8",
+            )
 
-            self.assertEqual(key_commands.text, "Key commands:")
-            self.assertEqual(key_commands.header, ["Course", "Topic"])
-            self.assertEqual(key_commands.prev_text, "")
-            self.assertEqual(key_commands.next_text, "- ls\n- cat")
+            first_run = parse_markdown(str(md_file))
+            second_run = parse_markdown(str(md_file))
 
-            self.assertEqual(list_block.text, "- ls\n- cat")
-            self.assertEqual(list_block.header, ["Course", "Topic"])
-            self.assertEqual(list_block.prev_text, "Key commands:")
-            self.assertEqual(list_block.next_text, "Final note.")
-
-            self.assertEqual(final_note.text, "Final note.")
-            self.assertEqual(final_note.header, ["Course", "Topic"])
+            self.assertEqual(
+                [(s.text, s.header, s.prev_text, s.next_text) for s in first_run],
+                [(s.text, s.header, s.prev_text, s.next_text) for s in second_run],
+            )
 
     def test_generate_corpus_writes_output_file_and_returns_snippets(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -64,11 +73,11 @@ class ParsingTests(unittest.TestCase):
             result = generate_corpus(str(notes_dir), str(out_file))
 
             self.assertIsInstance(result, list)
-            self.assertEqual(len(result), 2)
+            self.assertEqual(len(result), 1)
             self.assertTrue(out_file.exists())
 
             raw = json.loads(out_file.read_text(encoding="utf-8"))
-            self.assertEqual(len(raw), 2)
+            self.assertEqual(len(raw), 1)
             self.assertEqual(raw[0]["__type__"], "Snippet")
 
     def test_generate_corpus_returns_warning_when_no_markdown_files(self) -> None:

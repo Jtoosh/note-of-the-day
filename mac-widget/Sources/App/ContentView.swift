@@ -48,8 +48,22 @@ struct ContentView: View {
                     Text(snippet.title)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                    Text(snippet.text)
-                        .lineLimit(5)
+                    if !snippet.breadcrumbsText.isEmpty {
+                        Text(snippet.breadcrumbsText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+
+                    Group {
+                        if snippet.continuation.isEmpty {
+                            Text(snippet.text)
+                        } else {
+                            Text("\(snippet.text)\n\(snippet.continuation)")
+                        }
+                    }
+                    .lineLimit(12)
+
                     Text(snippet.sourceFile)
                         .font(.caption)
                         .foregroundStyle(.secondary)

@@ -41,23 +41,55 @@ struct NoteOfTheDayWidgetEntryView: View {
     let entry: NoteWidgetEntry
     @Environment(\.widgetFamily) private var family
 
+    private var snippetLineLimit: Int {
+        switch family {
+        case .systemSmall:
+            return 9
+        case .systemMedium:
+            return 14
+        case .systemLarge:
+            return 22
+        default:
+            return 12
+        }
+    }
+
+    private var breadcrumbLineLimit: Int {
+        switch family {
+        case .systemSmall:
+            return 2
+        case .systemMedium, .systemLarge:
+            return 3
+        default:
+            return 2
+        }
+    }
+
+    private var bodyText: String {
+        if entry.snippet.continuation.isEmpty {
+            return entry.snippet.text
+        }
+        return "\(entry.snippet.text)\n\(entry.snippet.continuation)"
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(entry.snippet.title)
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
 
-            Text(entry.snippet.text)
-                .font(family == .systemSmall ? .footnote : .body)
-                .lineLimit(family == .systemSmall ? 5 : 8)
-
-            if !entry.snippet.continuation.isEmpty {
-                Text(entry.snippet.continuation)
+            if !entry.snippet.breadcrumbsText.isEmpty {
+                Text(entry.snippet.breadcrumbsText)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(breadcrumbLineLimit)
             }
+
+            Text(bodyText)
+                .font(family == .systemSmall ? .caption : .footnote)
+                .lineLimit(snippetLineLimit)
+                .multilineTextAlignment(.leading)
 
             Spacer(minLength: 0)
 

@@ -1,6 +1,8 @@
 import json
 import os
-from typing import Any, Iterator, List, Sequence, Tuple, Union
+import re
+from dataclasses import dataclass
+from typing import Any, Iterator, List, Sequence, Set, Tuple, Union
 
 import marko
 from marko import block, inline
@@ -13,6 +15,32 @@ SNIPPET_BLOCK_TYPES: Tuple[type, ...] = (
     block.FencedCode,
     block.List,
 )
+LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d+\.)\s+")
+CONNECTOR_PREFIXES = (
+    "and ",
+    "or ",
+    "but ",
+    "because ",
+    "so ",
+    "then ",
+    "also ",
+    "this ",
+    "these ",
+    "those ",
+    "it ",
+    "they ",
+)
+MIN_SNIPPET_CHARS = 220
+MAX_SNIPPET_CHARS = 680
+
+
+@dataclass(frozen=True)
+class ContentBlock:
+    """Normalized parse block used to build context-aware snippets."""
+
+    text: str
+    header: Tuple[str, ...]
+    source_index: int
 
 
 def get_markdown_files(root: str) -> Iterator[str]:
@@ -79,39 +107,179 @@ def get_adjacent_text(elements: Sequence[Any], start_index: int, direction: int)
     return get_block_text(neighbor)
 
 
-def parse_markdown(file_path: str) -> List[Snippet]:
-    """Parse a markdown file into snippet objects."""
-    with open(file_path, "r", encoding="utf-8") as f:
-        text = f.read()
-
-    document = marko.parse(text)
-    elements = document.children
-
-    doc_snippets = []
-    heading_stack = []
-    filename = os.path.basename(file_path)
+def to_content_blocks(elements: Sequence[Any]) -> List[ContentBlock]:
+    """
+    Convert Marko top-level elements into normalized content blocks with heading context.
+    """
+    heading_stack: List[str] = []
+    content_blocks: List[ContentBlock] = []
 
     for i, element in enumerate(elements):
         if isinstance(element, block.Heading):
             header_text = get_node_text(element)
             level = element.level
-
-            # Keep all higher-level headings and replace any same/lower level trail.
             heading_stack = heading_stack[: level - 1] + [header_text]
             continue
 
         if not isinstance(element, SNIPPET_BLOCK_TYPES):
             continue
 
-        content_text = get_block_text(element).strip()
-        if not content_text:
+        text = get_block_text(element).strip()
+        if not text:
             continue
 
-        prev_text = get_adjacent_text(elements, i, -1)
-        next_text = get_adjacent_text(elements, i, 1)
+        content_blocks.append(
+            ContentBlock(
+                text=text,
+                header=tuple(heading_stack),
+                source_index=i,
+            )
+        )
 
-        # Copy heading_stack so each snippet keeps its own heading context.
-        snippet = Snippet(content_text, heading_stack.copy(), filename, prev_text, next_text)
+    return content_blocks
+
+
+def is_same_section(content_blocks: Sequence[ContentBlock], left: int, right: int) -> bool:
+    """Keep context windows inside the same heading path."""
+    return content_blocks[left].header == content_blocks[right].header
+
+
+def needs_leading_context(text: str) -> bool:
+    """
+    Heuristic: include leading context for bullets, numbered steps, and continuation phrasing.
+    """
+    if not text:
+        return False
+
+    first_line = text.splitlines()[0].strip()
+    if not first_line:
+        return False
+
+    lowered = first_line.lower()
+    if LIST_PREFIX_RE.match(first_line):
+        return True
+    if lowered.startswith(CONNECTOR_PREFIXES):
+        return True
+    if first_line[0].islower():
+        return True
+    return False
+
+
+def needs_trailing_context(text: str) -> bool:
+    """Heuristic: include trailing context for setup lines that imply follow-up content."""
+    if not text:
+        return False
+    stripped = text.rstrip()
+    return stripped.endswith(":")
+
+
+def expand_context_window(content_blocks: Sequence[ContentBlock], anchor_index: int) -> Tuple[int, int]:
+    """
+    Build a deterministic context window around an anchor block.
+
+    Rules:
+    1. Expand to satisfy structural cues (list/setup lines).
+    2. Expand further until snippet reaches a minimum useful length.
+    3. Never exceed MAX_SNIPPET_CHARS and never cross heading boundaries.
+    """
+    left = anchor_index
+    right = anchor_index
+    total_chars = len(content_blocks[anchor_index].text)
+    anchor_text = content_blocks[anchor_index].text
+
+    if needs_leading_context(anchor_text) and left > 0 and is_same_section(content_blocks, left - 1, left):
+        candidate = content_blocks[left - 1]
+        if total_chars + len(candidate.text) <= MAX_SNIPPET_CHARS:
+            left -= 1
+            total_chars += len(candidate.text)
+
+    if needs_trailing_context(anchor_text) and right + 1 < len(content_blocks):
+        if is_same_section(content_blocks, right, right + 1):
+            candidate = content_blocks[right + 1]
+            if total_chars + len(candidate.text) <= MAX_SNIPPET_CHARS:
+                right += 1
+                total_chars += len(candidate.text)
+
+    while total_chars < MIN_SNIPPET_CHARS:
+        left_candidate_index = left - 1
+        right_candidate_index = right + 1
+
+        left_candidate = None
+        if left_candidate_index >= 0 and is_same_section(content_blocks, left_candidate_index, left):
+            left_candidate = content_blocks[left_candidate_index]
+
+        right_candidate = None
+        if right_candidate_index < len(content_blocks) and is_same_section(content_blocks, right, right_candidate_index):
+            right_candidate = content_blocks[right_candidate_index]
+
+        if left_candidate is None and right_candidate is None:
+            break
+
+        # Deterministic tie-breaker: prefer the shorter neighbor, then left side.
+        choose_left = False
+        if left_candidate and right_candidate:
+            if len(left_candidate.text) <= len(right_candidate.text):
+                choose_left = True
+        elif left_candidate:
+            choose_left = True
+
+        chosen = left_candidate if choose_left else right_candidate
+        if chosen is None:
+            break
+
+        if total_chars + len(chosen.text) > MAX_SNIPPET_CHARS:
+            break
+
+        if choose_left:
+            left -= 1
+        else:
+            right += 1
+
+        total_chars += len(chosen.text)
+
+    return left, right
+
+
+def parse_markdown(file_path: str) -> List[Snippet]:
+    """
+    Parse a markdown file into context-aware snippets.
+
+    Each content block is treated as an anchor, then expanded into a deterministic
+    context window so snippets are understandable in isolation.
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        text = f.read()
+
+    document = marko.parse(text)
+    content_blocks = to_content_blocks(document.children)
+    doc_snippets: List[Snippet] = []
+    seen_snippets: Set[Tuple[Tuple[str, ...], str]] = set()
+    filename = os.path.basename(file_path)
+
+    for anchor_index, anchor_block in enumerate(content_blocks):
+        left, right = expand_context_window(content_blocks, anchor_index)
+        snippet_text = "\n\n".join(block_item.text for block_item in content_blocks[left : right + 1])
+
+        dedupe_key = (anchor_block.header, snippet_text)
+        if dedupe_key in seen_snippets:
+            continue
+        seen_snippets.add(dedupe_key)
+
+        prev_text = ""
+        if left > 0 and is_same_section(content_blocks, left - 1, left):
+            prev_text = content_blocks[left - 1].text
+
+        next_text = ""
+        if right + 1 < len(content_blocks) and is_same_section(content_blocks, right, right + 1):
+            next_text = content_blocks[right + 1].text
+
+        snippet = Snippet(
+            text=snippet_text,
+            header=list(anchor_block.header),
+            file=filename,
+            prev_text=prev_text,
+            next_text=next_text,
+        )
         doc_snippets.append(snippet)
 
     return doc_snippets
