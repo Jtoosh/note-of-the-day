@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from parsing import generate_corpus, parse_markdown
+from parsing import CorpusEmpty, generate_corpus, parse_markdown
 
 
 class ParsingTests(unittest.TestCase):
@@ -80,17 +80,17 @@ class ParsingTests(unittest.TestCase):
             self.assertEqual(len(raw), 1)
             self.assertEqual(raw[0]["__type__"], "Snippet")
 
-    def test_generate_corpus_returns_warning_when_no_markdown_files(self) -> None:
+    def test_generate_corpus_raises_when_no_markdown_files(self) -> None:
         with TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             notes_dir = tmp / "empty_notes"
             notes_dir.mkdir()
             out_file = tmp / "snippets.json"
 
-            result = generate_corpus(str(notes_dir), str(out_file))
+            with self.assertRaises(CorpusEmpty) as ctx:
+                generate_corpus(str(notes_dir), str(out_file))
 
-            self.assertIsInstance(result, str)
-            self.assertIn("No suitable snippets found", result)
+            self.assertIn("No suitable snippets found", str(ctx.exception))
             self.assertFalse(out_file.exists())
 
 

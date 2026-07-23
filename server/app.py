@@ -2,14 +2,14 @@ import json
 import os
 import random
 from pathlib import Path
-from typing import List, Union
+from typing import List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from formatting import build_snippet_payload
-from parsing import generate_corpus
+from parsing import CorpusEmpty, generate_corpus
 from snippet import Snippet
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -61,7 +61,7 @@ def load_snippet_corpus(corpus_file: Path) -> List[Snippet]:
         raise FileNotFoundError(f"Snippet corpus was not found at {corpus_file}")
 
     with corpus_file.open("r", encoding="utf-8") as corpus_stream:
-        raw_items = json.load(corpus_stream, object_hook=Snippet.custom_decoder)
+        raw_items = json.load(corpus_stream, object_hook=Snippet.from_dict)
 
     if not isinstance(raw_items, list):
         raise ValueError("Snippet corpus JSON must be a top-level list.")
@@ -93,12 +93,12 @@ def get_snippet() -> SnippetPayload:
 
 @app.post("/api/corpus/regenerate", response_model=RegenerateResponse)
 def regenerate_corpus() -> RegenerateResponse:
-    result: Union[List[Snippet], str] = generate_corpus(str(NOTES_DIR), str(SNIPPETS_FILE))
-
-    if isinstance(result, str):
+    try:
+        snippets = generate_corpus(str(NOTES_DIR), str(SNIPPETS_FILE))
+    except CorpusEmpty as exc:
         return RegenerateResponse(
             status="warning",
-            message=result,
+            message=str(exc),
             snippet_count=0,
             output_file=str(SNIPPETS_FILE),
         )
@@ -106,6 +106,6 @@ def regenerate_corpus() -> RegenerateResponse:
     return RegenerateResponse(
         status="ok",
         message="Corpus regenerated successfully.",
-        snippet_count=len(result),
+        snippet_count=len(snippets),
         output_file=str(SNIPPETS_FILE),
     )

@@ -36,9 +36,9 @@ The project is organized so parsing, formatting, backend API, and frontend UI ar
 
 Defines the core data model:
 
-- `Snippet(text, header, file, prev_text, next_text)`
-- `SnippetEncoder`: converts `Snippet` objects to JSON records.
-- `Snippet.custom_decoder`: reconstructs `Snippet` objects when reading JSON.
+- `Snippet(text, header, file, prev_text, next_text)` — a `@dataclass`.
+- `Snippet.to_dict()`: serializes to a JSON-compatible dict (used for corpus persistence).
+- `Snippet.from_dict()`: reconstructs `Snippet` objects when reading JSON (handles both old and new key formats).
 
 This model is the contract between parsing, persistence, selection, and formatting.
 
@@ -49,7 +49,6 @@ Responsible for extracting snippets from markdown:
 - `get_markdown_files(root)`: recursively finds `.md` files.
 - `get_node_text(node)`: recursively flattens Marko AST nodes to text.
 - `reconstruct_list(list_elem)`: rebuilds list blocks (`-`, `1.`) so list structure is preserved.
-- `get_adjacent_text(elements, start_index, direction)`: finds nearest non-blank sibling block for `prev_text`/`next_text`, while treating headings as structural boundaries.
 - `parse_markdown(file_path)`: converts a markdown file into snippet objects while maintaining heading context (`heading_stack`).
 - `generate_corpus(notes_dir, out_file)`: parses all markdown files and writes JSON corpus.
 
@@ -67,7 +66,6 @@ Responsible for turning a `Snippet` into display-ready output:
 - `build_snippet_payload(snippet)`: normalized payload for both terminal and frontend output.
 - `wrap_markdownish_text(text, width)`: wraps text while preserving list prefixes and indented blocks.
 - `render_terminal_snippet(payload, width=None)`: card-style CLI rendering with source/path/content sections.
-- `render_json_snippet(payload)`: JSON serialization for frontend/widget integration.
 
 #### Payload schema
 
@@ -84,7 +82,8 @@ Responsible for turning a `Snippet` into display-ready output:
 Thin coordinator layer:
 
 - CLI args:
-  - `-generate`: regenerate corpus before selecting snippet.
+  - `--generate`: regenerate corpus before selecting snippet.
+  - `--notes-dir`: directory containing markdown files (defaults to `../notesrepo`).
   - `--format text|json`: choose output format.
   - `--width N`: optional terminal render width.
 - `pick_snippet()`: loads corpus and chooses random snippet.
@@ -141,7 +140,13 @@ Frontend build/config files:
 ### Regenerate corpus then output snippet
 
 ```bash
-.venv/bin/python script.py -generate --format text
+.venv/bin/python script.py --generate --format text
+```
+
+### Regenerate corpus from a custom notes directory
+
+```bash
+.venv/bin/python script.py --generate --notes-dir /path/to/notes --format text
 ```
 
 ## Backend API Usage
@@ -218,7 +223,6 @@ Validates output/presentation behavior:
 - Breadcrumb string generation.
 - Text wrapping behavior for markdown-like bullets.
 - Terminal card rendering sections (`Source`, `Path`, continuation block).
-- JSON rendering output validity/round-tripping.
 
 #### `tests/test_parsing.py`
 
@@ -237,7 +241,7 @@ Validates orchestration and CLI output paths:
 - Snippet selection from saved corpus.
 - JSON output mode from `main()`.
 - Text output mode from `main()`.
-- `-generate` path calls corpus generation with expected paths.
+- `--generate` path calls corpus generation with expected paths.
 
 ## Requirements
 

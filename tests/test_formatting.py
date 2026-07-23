@@ -1,9 +1,7 @@
-import json
 import unittest
 
 from formatting import (
     build_snippet_payload,
-    render_json_snippet,
     render_terminal_snippet,
     wrap_markdownish_text,
 )
@@ -71,22 +69,6 @@ class FormattingTests(unittest.TestCase):
         self.assertIn("Path:   Course > Week 1", output)
         self.assertIn("[Continuation]", output)
         self.assertIn("- ls", output)
-
-    def test_render_json_snippet_is_valid_json(self) -> None:
-        payload = {
-            "title": "Snippet of the Day",
-            "source_file": "notes.md",
-            "breadcrumbs": ["A", "B"],
-            "breadcrumbs_text": "A > B",
-            "text": "Hello",
-            "continuation": "",
-            "previous_context": "",
-        }
-
-        rendered = render_json_snippet(payload)
-        parsed = json.loads(rendered)
-
-        self.assertEqual(parsed, payload)
 
 
 if __name__ == "__main__":

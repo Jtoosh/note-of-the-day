@@ -2,12 +2,12 @@ import json
 import os
 import re
 from dataclasses import dataclass
-from typing import Any, Iterator, List, Sequence, Set, Tuple, Union
+from typing import Any, Iterator, List, Sequence, Set, Tuple
 
 import marko
 from marko import block, inline
 
-from snippet import Snippet, SnippetEncoder
+from snippet import Snippet
 
 SNIPPET_BLOCK_TYPES: Tuple[type, ...] = (
     block.Paragraph,
@@ -32,6 +32,10 @@ CONNECTOR_PREFIXES = (
 )
 MIN_SNIPPET_CHARS = 220
 MAX_SNIPPET_CHARS = 680
+
+
+class CorpusEmpty(Exception):
+    """Raised when no snippets could be generated from the notes directory."""
 
 
 @dataclass(frozen=True)
@@ -83,28 +87,6 @@ def get_block_text(element: Any) -> str:
     if isinstance(element, block.List):
         return reconstruct_list(element)
     return get_node_text(element)
-
-
-def get_adjacent_text(elements: Sequence[Any], start_index: int, direction: int) -> str:
-    """
-    Return nearest non-blank sibling text in the requested direction.
-
-    Headings are treated as boundaries (structural context, not content context),
-    so they return an empty string.
-    """
-    index = start_index + direction
-
-    while 0 <= index < len(elements) and isinstance(elements[index], block.BlankLine):
-        index += direction
-
-    if index < 0 or index >= len(elements):
-        return ""
-
-    neighbor = elements[index]
-    if isinstance(neighbor, block.Heading):
-        return ""
-
-    return get_block_text(neighbor)
 
 
 def to_content_blocks(elements: Sequence[Any]) -> List[ContentBlock]:
@@ -285,7 +267,7 @@ def parse_markdown(file_path: str) -> List[Snippet]:
     return doc_snippets
 
 
-def generate_corpus(notes_dir: str, out_file: str) -> Union[List[Snippet], str]:
+def generate_corpus(notes_dir: str, out_file: str) -> List[Snippet]:
     all_snippets: List[Snippet] = []
 
     for path in get_markdown_files(notes_dir):
@@ -293,9 +275,9 @@ def generate_corpus(notes_dir: str, out_file: str) -> Union[List[Snippet], str]:
         all_snippets.extend(file_snippets)
 
     if not all_snippets:
-        return "⚠️ No suitable snippets found. Try adjusting filters."
+        raise CorpusEmpty("No suitable snippets found. Try adjusting filters.")
 
     with open(out_file, "w", encoding="utf-8") as f:
-        json.dump(all_snippets, f, cls=SnippetEncoder, indent=4)
+        json.dump([s.to_dict() for s in all_snippets], f, indent=4)
 
     return all_snippets

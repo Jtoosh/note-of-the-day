@@ -7,7 +7,8 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 import script
-from snippet import Snippet, SnippetEncoder
+from parsing import CorpusEmpty
+from snippet import Snippet
 
 
 class ScriptTests(unittest.TestCase):
@@ -19,7 +20,7 @@ class ScriptTests(unittest.TestCase):
                 Snippet("second", ["H2"], "two.md", "", ""),
             ]
             out_file.write_text(
-                json.dumps(snippets, cls=SnippetEncoder, indent=2),
+                json.dumps([s.to_dict() for s in snippets], indent=2),
                 encoding="utf-8",
             )
 
@@ -83,16 +84,33 @@ class ScriptTests(unittest.TestCase):
             next_text="",
         )
 
-        with patch.object(script, "generate_corpus", return_value=[]) as generate_mock:
+        with patch.object(script, "generate_corpus", return_value=[snippet]) as generate_mock:
             with patch.object(script, "pick_snippet", return_value=snippet):
                 buffer = io.StringIO()
                 with redirect_stdout(buffer):
                     exit_code = script.main(
-                        ["script.py", "-generate", "--format", "text", "--width", "72"]
+                        ["script.py", "--generate", "--format", "text", "--width", "72"]
                     )
 
         self.assertEqual(exit_code, 0)
-        generate_mock.assert_called_once_with(script.NOTES_DIR, script.OUT_FILE)
+        generate_mock.assert_called_once_with(
+            script.DEFAULT_NOTES_DIR, script.OUT_FILE
+        )
+
+    def test_main_generate_exits_on_corpus_failure(self) -> None:
+        with patch.object(
+            script,
+            "generate_corpus",
+            side_effect=CorpusEmpty("No suitable snippets found. Try adjusting filters."),
+        ):
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = script.main(
+                    ["script.py", "--generate", "--format", "text"]
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertIn("No suitable snippets found", buffer.getvalue())
 
 
 if __name__ == "__main__":
